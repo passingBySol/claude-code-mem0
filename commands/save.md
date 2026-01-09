@@ -20,7 +20,7 @@ Extract and save key information from this conversation to mem0 for future sessi
 3. Save each important fact using the save script:
 
 ```bash
-python3 ${CLAUDE_PROJECT_DIR}/hooks/save_manual.py "fact to remember"
+${CLAUDE_PYTHON_VENV}/bin/python ${CLAUDE_PLUGIN_ROOT}/hooks/save_manual.py "fact to remember"
 ```
 
 4. Report what was saved to the user.
@@ -29,5 +29,5 @@ python3 ${CLAUDE_PROJECT_DIR}/hooks/save_manual.py "fact to remember"
 
 If the user discussed preferring React over Vue, save:
 ```bash
-python3 ${CLAUDE_PROJECT_DIR}/hooks/save_manual.py "User prefers React over Vue for frontend development"
+${CLAUDE_PYTHON_VENV}/bin/python ${CLAUDE_PLUGIN_ROOT}/hooks/save_manual.py "User prefers React over Vue for frontend development"
 ```

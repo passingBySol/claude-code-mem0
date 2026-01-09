@@ -13,21 +13,27 @@ Persistent memory for Claude Code using [mem0.ai](https://mem0.ai) - remembers c
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.8+ in a virtual environment
 - Claude Code with plugin support
 - mem0 API key ([get one here](https://app.mem0.ai))
+- `CLAUDE_PYTHON_VENV` environment variable pointing to a Python venv with `mem0ai` installed
 
 ## Quick Start
 
 ```bash
-# 1. Add plugin to ~/.claude/settings.json
-# 2. Install dependency
-pip install mem0ai
+# 1. Set up a Python venv for Claude Code plugins
+python3 -m venv ~/claude-python-venv
+~/claude-python-venv/bin/pip install mem0ai
 
-# 3. Create .env in your project root
-echo "MEM0_API_KEY=your-api-key-here" > .env
+# 2. Add CLAUDE_PYTHON_VENV to your shell profile (~/.bashrc, ~/.zshrc, etc.)
+echo 'export CLAUDE_PYTHON_VENV="$HOME/claude-python-venv"' >> ~/.zshrc
 
-# 4. Restart Claude Code
+# 3. Add plugin to ~/.claude/settings.json
+
+# 4. Create global .env in ~/.claude/
+echo "MEM0_API_KEY=your-api-key-here" > ~/.claude/.env
+
+# 5. Restart Claude Code
 ```
 
 ## Installation
@@ -60,17 +66,27 @@ Then add to settings:
 }
 ```
 
-### 2. Install Dependencies
+### 2. Set Up Python Environment
+
+Create a Python virtual environment and install dependencies:
 
 ```bash
-pip install mem0ai
+# Create venv (can be anywhere, e.g., ~/claude-python-venv)
+python3 -m venv ~/claude-python-venv
+~/claude-python-venv/bin/pip install mem0ai
+
+# Set CLAUDE_PYTHON_VENV in your shell profile
+echo 'export CLAUDE_PYTHON_VENV="$HOME/claude-python-venv"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
 ### 3. Configure Environment
 
-Create a `.env` file in your project root:
+Create a global `.env` file in `~/.claude/`:
 
 ```bash
+# ~/.claude/.env
+
 # Required: Get your API key from https://app.mem0.ai
 MEM0_API_KEY=your-api-key-here
 
@@ -86,6 +102,8 @@ MEM0_THRESHOLD=0.3
 # Optional: Number of messages to save per session (default: 10)
 MEM0_SAVE_MESSAGES=10
 ```
+
+You can also create a project-specific `.env` file in your project root to override global settings.
 
 ### 4. Restart Claude Code
 
@@ -167,10 +185,11 @@ Check the current configuration status and test the connection.
 
 ### Memories not being retrieved
 
-1. Verify `MEM0_API_KEY` is set correctly in `.env`
-2. Check that mem0ai is installed: `pip install mem0ai`
-3. Ensure you have existing memories in mem0
-4. Try lowering `MEM0_THRESHOLD` for broader matches (e.g., `0.1`)
+1. Verify `MEM0_API_KEY` is set correctly in `~/.claude/.env` or project `.env`
+2. Check that mem0ai is installed in the venv: `$CLAUDE_PYTHON_VENV/bin/pip install mem0ai`
+3. Ensure `CLAUDE_PYTHON_VENV` environment variable is set
+4. Ensure you have existing memories in mem0
+5. Try lowering `MEM0_THRESHOLD` for broader matches (e.g., `0.1`)
 
 ### Memories not being saved
 
@@ -186,7 +205,7 @@ Check the current configuration status and test the connection.
 export MEM0_API_KEY=your-api-key-here
 
 # Test connection and add a memory
-python3 -c "
+$CLAUDE_PYTHON_VENV/bin/python -c "
 from mem0 import MemoryClient
 client = MemoryClient(api_key='$MEM0_API_KEY')
 print('Connection successful!')
@@ -203,7 +222,7 @@ print(f'Add result: {result}')
 ### Testing memory search
 
 ```bash
-python3 -c "
+$CLAUDE_PYTHON_VENV/bin/python -c "
 from mem0 import MemoryClient
 client = MemoryClient(api_key='$MEM0_API_KEY')
 results = client.search('test', filters={'user_id': 'test-user'}, top_k=5)
@@ -213,8 +232,9 @@ print(f'Found {len(results.get(\"results\", []))} memories')
 
 ## Privacy & Security
 
-- API keys are loaded from environment variables or `.env` files
-- Add `.env` to your `.gitignore` to prevent committing secrets
+- API keys are loaded from `~/.claude/.env` (global) or project `.env` files
+- The global `~/.claude/.env` is outside of project directories, keeping secrets out of repos
+- Add `.env` to your `.gitignore` to prevent committing project-specific secrets
 - Memories are scoped by `MEM0_USER_ID` - use unique IDs for different projects
 - Review mem0's [privacy policy](https://mem0.ai/privacy) for data handling
 

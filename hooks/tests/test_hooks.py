@@ -15,6 +15,17 @@ import pytest
 HOOKS_DIR = Path(__file__).parent.parent
 
 
+def get_python_executable():
+    """Get Python executable - prefer CLAUDE_PYTHON_VENV if set, else use current interpreter."""
+    venv_path = os.environ.get("CLAUDE_PYTHON_VENV")
+    if venv_path:
+        return str(Path(venv_path) / "bin" / "python")
+    return sys.executable
+
+
+PYTHON = get_python_executable()
+
+
 class TestUserPromptSubmitHook:
     """Tests for userpromptsubmit.py hook"""
 
@@ -23,7 +34,7 @@ class TestUserPromptSubmitHook:
         input_data = json.dumps({"prompt": "test prompt"})
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "userpromptsubmit.py")],
+            [PYTHON, str(HOOKS_DIR / "userpromptsubmit.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -38,7 +49,7 @@ class TestUserPromptSubmitHook:
         input_data = json.dumps({})
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "userpromptsubmit.py")],
+            [PYTHON, str(HOOKS_DIR / "userpromptsubmit.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -50,7 +61,7 @@ class TestUserPromptSubmitHook:
     def test_handles_invalid_json(self):
         """Should handle invalid JSON input gracefully"""
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "userpromptsubmit.py")],
+            [PYTHON, str(HOOKS_DIR / "userpromptsubmit.py")],
             input="not valid json",
             capture_output=True,
             text=True,
@@ -64,7 +75,7 @@ class TestUserPromptSubmitHook:
         input_data = json.dumps({"user_prompt": "test prompt"})
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "userpromptsubmit.py")],
+            [PYTHON, str(HOOKS_DIR / "userpromptsubmit.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -82,7 +93,7 @@ class TestUserPromptSubmitHook:
         input_data = json.dumps({"prompt": "test query for memories"})
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "userpromptsubmit.py")],
+            [PYTHON, str(HOOKS_DIR / "userpromptsubmit.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -107,7 +118,7 @@ class TestStopHook:
         })
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "stop.py")],
+            [PYTHON, str(HOOKS_DIR / "stop.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -121,7 +132,7 @@ class TestStopHook:
         input_data = json.dumps({})
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "stop.py")],
+            [PYTHON, str(HOOKS_DIR / "stop.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -133,7 +144,7 @@ class TestStopHook:
     def test_handles_invalid_json(self):
         """Should handle invalid JSON input gracefully"""
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "stop.py")],
+            [PYTHON, str(HOOKS_DIR / "stop.py")],
             input="not valid json",
             capture_output=True,
             text=True,
@@ -157,7 +168,7 @@ class TestStopHook:
         })
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "stop.py")],
+            [PYTHON, str(HOOKS_DIR / "stop.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -179,7 +190,7 @@ class TestStopHook:
         })
 
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "stop.py")],
+            [PYTHON, str(HOOKS_DIR / "stop.py")],
             input=input_data,
             capture_output=True,
             text=True,
@@ -198,7 +209,7 @@ class TestManualSaveScript:
     def test_returns_error_without_api_key(self):
         """Should return error when no API key configured"""
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "save_manual.py"), "test message"],
+            [PYTHON, str(HOOKS_DIR / "save_manual.py"), "test message"],
             capture_output=True,
             text=True,
             env={**os.environ, "MEM0_API_KEY": "", "CLAUDE_PROJECT_DIR": ""}
@@ -211,7 +222,7 @@ class TestManualSaveScript:
     def test_accepts_command_line_argument(self):
         """Should accept message as command line argument"""
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "save_manual.py"), "test", "message"],
+            [PYTHON, str(HOOKS_DIR / "save_manual.py"), "test", "message"],
             capture_output=True,
             text=True,
             env={**os.environ, "MEM0_API_KEY": "", "CLAUDE_PROJECT_DIR": ""}
@@ -228,7 +239,7 @@ class TestManualSaveScript:
     def test_saves_with_valid_key(self):
         """Should save successfully with valid API key"""
         result = subprocess.run(
-            ["python3", str(HOOKS_DIR / "save_manual.py"), "Test from pytest manual save"],
+            [PYTHON, str(HOOKS_DIR / "save_manual.py"), "Test from pytest manual save"],
             capture_output=True,
             text=True,
             env=os.environ

@@ -16,10 +16,8 @@ from pathlib import Path
 
 
 def load_env_file():
-    """Load .env file from project directory if it exists."""
-    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
-    if project_dir:
-        env_path = Path(project_dir) / ".env"
+    """Load .env files - project-specific first, then global (~/.claude/.env) as fallback."""
+    def parse_env_file(env_path: Path):
         if env_path.exists():
             with open(env_path) as f:
                 for line in f:
@@ -27,6 +25,16 @@ def load_env_file():
                     if line and not line.startswith("#") and "=" in line:
                         key, value = line.split("=", 1)
                         os.environ.setdefault(key.strip(), value.strip())
+
+    # Load project-specific .env first (takes precedence)
+    project_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")
+    if project_dir:
+        parse_env_file(Path(project_dir) / ".env")
+
+    # Load global .env from ~/.claude/.env as fallback
+    home_dir = os.environ.get("HOME", "")
+    if home_dir:
+        parse_env_file(Path(home_dir) / ".claude" / ".env")
 
 
 def get_config():
