@@ -61,11 +61,13 @@ Add to your `~/.claude/settings.json`:
 
 ```json
 {
-  "plugins": [
-    "github:passingBySol/claude-code-mem0"
-  ]
+  "enabledPlugins": {
+    "mem0@claude-code-mem0": true
+  }
 }
 ```
+
+Where `mem0` is the plugin name and `claude-code-mem0` is the marketplace name.
 
 **Option C: Clone locally**
 
@@ -123,20 +125,23 @@ The plugin will be active after restart.
 ```
 claude-code-mem0/
 ├── .claude-plugin/
-│   ├── plugin.json           # Plugin metadata
 │   └── marketplace.json      # Marketplace configuration
-├── commands/
-│   └── save.md               # /mem0:save command
-├── hooks/
-│   ├── hooks.json            # Hook configuration
-│   ├── userpromptsubmit.py   # Memory retrieval before prompts
-│   ├── stop.py               # Memory storage on session end
-│   └── save_manual.py        # Manual memory save script
-├── skills/
-│   ├── configure/
-│   │   └── SKILL.md          # /mem0:configure skill
-│   └── status/
-│       └── SKILL.md          # /mem0:status skill
+├── plugins/
+│   └── mem0/
+│       ├── .claude-plugin/
+│       │   └── plugin.json   # Plugin metadata
+│       ├── commands/
+│       │   └── save.md       # /mem0:save command
+│       ├── hooks/
+│       │   ├── hooks.json    # Hook configuration
+│       │   ├── userpromptsubmit.py   # Memory retrieval
+│       │   ├── stop.py       # Memory storage on session end
+│       │   └── save_manual.py        # Manual save script
+│       └── skills/
+│           ├── configure/
+│           │   └── SKILL.md  # /mem0:configure skill
+│           └── status/
+│               └── SKILL.md  # /mem0:status skill
 └── README.md
 ```
 
@@ -257,7 +262,7 @@ Run the test suite:
 
 ```bash
 pip install pytest
-python -m pytest hooks/tests/ -v
+python -m pytest plugins/mem0/hooks/tests/ -v
 ```
 
 ## License
