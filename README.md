@@ -1,6 +1,6 @@
 # mem0 Plugin for Claude Code
 
-[![Tests](https://github.com/0xtechdean/claude-code-mem0/actions/workflows/test.yml/badge.svg)](https://github.com/0xtechdean/claude-code-mem0/actions/workflows/test.yml)
+[![Tests](https://github.com/passingBySol/claude-code-mem0/actions/workflows/test.yml/badge.svg)](https://github.com/passingBySol/claude-code-mem0/actions/workflows/test.yml)
 
 Persistent memory for Claude Code using [mem0.ai](https://mem0.ai) - remembers context across conversations.
 
@@ -26,39 +26,51 @@ Persistent memory for Claude Code using [mem0.ai](https://mem0.ai) - remembers c
    ~/claude-python-venv/bin/pip install mem0ai
    ```
 
-2. **Add to `~/.claude/settings.json`:**
+2. **Install via `/plugin` command:**
+   - Run `/plugin` in Claude Code
+   - Select "Add Marketplace"
+   - Enter: `passingBySol/claude-code-mem0`
+   - Then install the `mem0` plugin from the marketplace
+
+3. **Configure environment in `~/.claude/settings.json`:**
    ```json
    {
      "env": {
        "CLAUDE_PYTHON_VENV": "/Users/YOUR_USERNAME/claude-python-venv",
        "MEM0_API_KEY": "your-api-key-here"
-     },
-     "enabledPlugins": {
-       "github:0xtechdean/claude-code-mem0": true
      }
    }
    ```
 
-3. **Restart Claude Code**
+4. **Restart Claude Code**
 
 ## Installation
 
 ### 1. Install the Plugin
 
-Add to your `.claude/settings.json`:
+**Option A: Via `/plugin` Command (Recommended)**
+
+1. Run `/plugin` in Claude Code
+2. Select "Add Marketplace"
+3. Enter: `passingBySol/claude-code-mem0`
+4. Install the `mem0` plugin from the marketplace
+
+**Option B: Via settings.json**
+
+Add to your `~/.claude/settings.json`:
 
 ```json
 {
   "plugins": [
-    "github:0xtechdean/claude-code-mem0"
+    "github:passingBySol/claude-code-mem0"
   ]
 }
 ```
 
-Or clone locally:
+**Option C: Clone locally**
 
 ```bash
-git clone https://github.com/0xtechdean/claude-code-mem0.git
+git clone https://github.com/passingBySol/claude-code-mem0.git
 ```
 
 Then add to settings:
@@ -111,7 +123,8 @@ The plugin will be active after restart.
 ```
 claude-code-mem0/
 ├── .claude-plugin/
-│   └── plugin.json           # Plugin metadata
+│   ├── plugin.json           # Plugin metadata
+│   └── marketplace.json      # Marketplace configuration
 ├── commands/
 │   └── save.md               # /mem0:save command
 ├── hooks/
@@ -236,7 +249,7 @@ print(f'Found {len(results.get(\"results\", []))} memories')
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or pull request at [github.com/0xtechdean/claude-code-mem0](https://github.com/0xtechdean/claude-code-mem0).
+Contributions are welcome! Please open an issue or pull request at [github.com/passingBySol/claude-code-mem0](https://github.com/passingBySol/claude-code-mem0).
 
 ## Testing
 

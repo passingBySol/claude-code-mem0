@@ -12,7 +12,7 @@
       "name": "mem0",
       "description": "Persistent memory for Claude Code using mem0.ai - automatically retrieves relevant memories before prompts and saves conversations to mem0",
       "version": "0.3.1",
-      "source": ".",
+      "source": "github:passingBySol/claude-code-mem0",
       "category": "productivity"
     }
   ]
