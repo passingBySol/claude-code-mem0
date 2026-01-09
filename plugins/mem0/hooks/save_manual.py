@@ -92,14 +92,18 @@ def validate_metadata(metadata: dict) -> dict:
 
 
 def save_memories(messages: list, config: dict, metadata: dict = None) -> dict:
-    """Save messages to mem0 with optional metadata."""
+    """Save messages to mem0 with optional metadata.
+
+    Uses infer=False to store pre-extracted insights directly without
+    mem0's internal LLM refinement, since extraction is done client-side.
+    """
     try:
         from mem0 import MemoryClient
 
         client = MemoryClient(api_key=config["api_key"])
 
-        # Build kwargs
-        kwargs = {"user_id": config["user_id"]}
+        # Build kwargs - use infer=False since we do extraction client-side
+        kwargs = {"user_id": config["user_id"], "infer": False}
         if metadata:
             validated = validate_metadata(metadata)
             if validated:
