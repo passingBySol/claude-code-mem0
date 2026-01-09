@@ -16,7 +16,7 @@ from pathlib import Path
 
 
 def load_env_file():
-    """Load .env files - project-specific first, then global (~/.claude/.env) as fallback."""
+    """Load .env files as fallback (settings.json env is preferred for global config)."""
     def parse_env_file(env_path: Path):
         if env_path.exists():
             with open(env_path) as f:
@@ -31,7 +31,7 @@ def load_env_file():
     if project_dir:
         parse_env_file(Path(project_dir) / ".env")
 
-    # Load global .env from ~/.claude/.env as fallback
+    # Load global .env from ~/.claude/.env as additional fallback
     home_dir = os.environ.get("HOME", "")
     if home_dir:
         parse_env_file(Path(home_dir) / ".claude" / ".env")
