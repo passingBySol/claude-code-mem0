@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
 mem0 Manual Save Script
-Saves provided messages to mem0 memory.
+Saves provided messages to mem0 memory with optional metadata.
 
-Usage: echo '{"messages": [...]}' | python3 save_manual.py
-Or: python3 save_manual.py "message to save"
+Usage:
+    # Simple string (backward compatible)
+    python3 save_manual.py "fact to remember"
+
+    # With metadata via stdin
+    echo '{"messages": [...], "metadata": {...}}' | python3 save_manual.py
+
+    # JSON with content and metadata via stdin
+    echo '{"content": "fact", "metadata": {"type": "engineering", "domain": "backend"}}' | python3 save_manual.py
 """
 
 import json
@@ -43,14 +50,63 @@ def get_config():
     }
 
 
-def save_memories(messages: list, config: dict) -> dict:
-    """Save messages to mem0."""
+def validate_metadata(metadata: dict) -> dict:
+    """Validate and clean metadata according to schema."""
+    if not metadata:
+        return {}
+
+    valid = {}
+
+    # type: required, binary
+    mem_type = metadata.get("type", "").lower()
+    if mem_type in ("engineering", "eng"):
+        valid["type"] = "engineering"
+    elif mem_type in ("non-engineering", "non-eng", "other"):
+        valid["type"] = "non-engineering"
+
+    # Only include engineering fields if type is engineering
+    if valid.get("type") == "engineering":
+        # domain
+        domain = metadata.get("domain", "").lower()
+        valid_domains = ["backend", "frontend", "product", "ai", "devops", "infra", "general"]
+        if domain in valid_domains:
+            valid["domain"] = domain
+
+        # language
+        lang = metadata.get("language", "").lower()
+        valid_langs = ["rust", "python", "typescript", "javascript", "go", "java", "c", "cpp", "shell", "sql", "other"]
+        if lang in valid_langs:
+            valid["language"] = lang
+
+        # repo (string, no validation needed)
+        repo = metadata.get("repo", "")
+        if repo and isinstance(repo, str):
+            valid["repo"] = repo.strip()
+
+        # package (string, no validation needed)
+        package = metadata.get("package", "")
+        if package and isinstance(package, str):
+            valid["package"] = package.strip()
+
+    return valid
+
+
+def save_memories(messages: list, config: dict, metadata: dict = None) -> dict:
+    """Save messages to mem0 with optional metadata."""
     try:
         from mem0 import MemoryClient
 
         client = MemoryClient(api_key=config["api_key"])
-        result = client.add(messages, user_id=config["user_id"])
-        return {"success": True, "result": result}
+
+        # Build kwargs
+        kwargs = {"user_id": config["user_id"]}
+        if metadata:
+            validated = validate_metadata(metadata)
+            if validated:
+                kwargs["metadata"] = validated
+
+        result = client.add(messages, **kwargs)
+        return {"success": True, "result": result, "metadata": kwargs.get("metadata")}
     except ImportError:
         return {"success": False, "error": "mem0ai not installed. Run: pip install mem0ai"}
     except Exception as e:
@@ -69,22 +125,35 @@ def main():
         print(json.dumps({"success": False, "error": "MEM0_API_KEY not configured"}))
         sys.exit(1)
 
-    # Get messages from stdin or command line
+    # Get messages and metadata from stdin or command line
     messages = []
+    metadata = {}
 
     if len(sys.argv) > 1:
-        # Message provided as command line argument
+        # Message provided as command line argument (backward compatible)
         content = " ".join(sys.argv[1:])
         messages = [{"role": "user", "content": content}]
     else:
         # Try to read from stdin
         try:
             input_data = json.load(sys.stdin)
-            if isinstance(input_data, dict) and "messages" in input_data:
-                messages = input_data["messages"]
+
+            if isinstance(input_data, dict):
+                # New format: {"content": "...", "metadata": {...}}
+                if "content" in input_data:
+                    messages = [{"role": "user", "content": input_data["content"]}]
+                    metadata = input_data.get("metadata", {})
+                # Legacy format: {"messages": [...], "metadata": {...}}
+                elif "messages" in input_data:
+                    messages = input_data["messages"]
+                    metadata = input_data.get("metadata", {})
             elif isinstance(input_data, list):
+                # Legacy format: just messages array
                 messages = input_data
-        except:
+        except json.JSONDecodeError:
+            print(json.dumps({"success": False, "error": "Invalid JSON input"}))
+            sys.exit(1)
+        except Exception:
             print(json.dumps({"success": False, "error": "No messages provided"}))
             sys.exit(1)
 
@@ -93,7 +162,7 @@ def main():
         sys.exit(1)
 
     # Save to mem0
-    result = save_memories(messages, config)
+    result = save_memories(messages, config, metadata)
     print(json.dumps(result, indent=2))
 
 
