@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-code-mem0",
+  "version": "0.3.1",
+  "description": "Persistent memory for Claude Code using mem0.ai - remembers context across conversations",
+  "owner": {
+    "name": "passingBy",
+    "email": "example@example.com"
+  },
+  "plugins": [
+    {
+      "name": "mem0",
+      "description": "Persistent memory for Claude Code using mem0.ai - automatically retrieves relevant memories before prompts and saves conversations to mem0",
+      "version": "0.3.1",
+      "source": ".",
+      "category": "productivity"
+    }
+  ]
+}
